@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "First App",
+      "name": "Todo App",
       "request": "launch",
       "type": "dart"
     },

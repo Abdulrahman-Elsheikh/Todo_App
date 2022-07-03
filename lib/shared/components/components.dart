@@ -40,6 +40,7 @@ Widget defaultTextField({
   bool isPassword = false,
   Function? onSubmit,
   Function? onChange,
+  Function? onTap,
   required Function validate,
   required String hintText,
   required String labelText,
@@ -51,6 +52,11 @@ Widget defaultTextField({
       controller: controller,
       keyboardType: type,
       obscureText: isPassword,
+      onTap: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
       onFieldSubmitted: (value) {
         if (onSubmit != null) {
           onSubmit();
