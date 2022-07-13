@@ -10,13 +10,13 @@
       "type": "dart"
     },
     {
-      "name": "First App (profile mode)",
+      "name": "Todo App (profile mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile"
     },
     {
-      "name": "First App (release mode)",
+      "name": "Todo App (release mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"
