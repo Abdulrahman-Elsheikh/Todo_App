@@ -96,7 +96,7 @@ Widget defaultTextField({
     );
 
 Widget buildTaskItem(Map model, context) => Dismissible(
-      key: Key(model['id'].toString()),
+      key: UniqueKey(),
       onDismissed: (direction) {
         AppCubit.get(context).deleteDataFromDatabase(id: model['id']);
       },

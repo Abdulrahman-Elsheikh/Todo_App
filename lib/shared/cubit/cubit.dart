@@ -33,7 +33,7 @@ class AppCubit extends Cubit<AppStates> {
     'Archived Tasks',
   ];
 
-  late Database database;
+  late Database todoDatabase;
 
   void changeIndex(int index) {
     currentIndex = index;
@@ -44,9 +44,9 @@ class AppCubit extends Cubit<AppStates> {
     openDatabase(
       'tasks.db',
       version: 1,
-      onCreate: (Database database, int version) {
+      onCreate: (Database todoDatabase, int version) {
         print('Database created');
-        database
+        todoDatabase
             .execute(
               'CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT, status TEXT)',
             )
@@ -55,12 +55,12 @@ class AppCubit extends Cubit<AppStates> {
           print('Error when creating table ${error.toString()}');
         });
       },
-      onOpen: (database) {
-        getDataFromDatabase(database);
+      onOpen: (todoDatabase) async {
         print('Database opened');
+        getDataFromDatabase(todoDatabase);
       },
     ).then((value) {
-      database = value;
+      todoDatabase = value;
       emit(AppCreateDatabaseState());
     });
   }
@@ -70,37 +70,37 @@ class AppCubit extends Cubit<AppStates> {
     required String date,
     required String time,
   }) async {
-    database.transaction((txn) async {
+    todoDatabase.transaction((txn) async {
       txn
           .rawInsert(
               'INSERT INTO tasks(title, date, time, status) VALUES ("$title", "$date", "$time", "new")')
           .then((value) {
         print('$value inserted successfully');
         emit(AppInsertToDatabaseState());
-        getDataFromDatabase(database);
+        getDataFromDatabase(todoDatabase);
       }).catchError((error) {
         print('Error when inserting ${error.toString()}');
       });
     });
   }
 
-  void getDataFromDatabase(database) async {
+  void getDataFromDatabase(todoDatabase) async {
     emit(AppGetDatabaseLoadingState());
     newTasks = [];
     doneTasks = [];
     archivedTasks = [];
-    database.rawQuery('SELECT * FROM tasks').then((value) {
-      print(value);
+    todoDatabase.rawQuery('SELECT * FROM tasks').then((value) {
+      print('From get $value');
       value.forEach((element) {
         if (element['status'] == 'new') {
           newTasks.add(element);
-          print(newTasks);
         } else if (element['status'] == 'done') {
           doneTasks.add(element);
         } else if (element['status'] == 'archived') {
           archivedTasks.add(element);
         }
       });
+      print(newTasks);
       emit(AppGetDatabaseState());
     });
   }
@@ -109,10 +109,10 @@ class AppCubit extends Cubit<AppStates> {
     required String status,
     required int id,
   }) async {
-    database.rawUpdate(
+    todoDatabase.rawUpdate(
         'UPDATE tasks SET status = ? WHERE id = ?', [status, id]).then((value) {
       print('$value updated successfully');
-      getDataFromDatabase(database);
+      getDataFromDatabase(todoDatabase);
       emit(AppUpdateDatabaseState());
     });
   }
@@ -120,9 +120,10 @@ class AppCubit extends Cubit<AppStates> {
   void deleteDataFromDatabase({
     required int id,
   }) async {
-    database.rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value) {
+    todoDatabase
+        .rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value) {
       print('$value deleted successfully');
-      getDataFromDatabase(database);
+      getDataFromDatabase(todoDatabase);
       emit(AppDeleteDatabaseState());
     });
   }
